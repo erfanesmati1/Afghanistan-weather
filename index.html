@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#f3f5f2">
+  <meta name="description"
+    content="Current weather and seven-day forecasts for all 34 provinces of Afghanistan, with worldwide city search.">
+  <meta property="og:title" content="Weather Afghanistan — Weather for All 34 Provinces">
+  <meta property="og:description" content="Weather across Afghanistan's provinces and cities around the world.">
+  <meta property="og:type" content="website">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src https://api.open-meteo.com https://geocoding-api.open-meteo.com; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+  <title>Weather Afghanistan — Weather for All 34 Provinces</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/weather.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div id="weatherEffects" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Weather Afghanistan home"><span class="brand-symbol"
+        aria-hidden="true">W</span><span><strong data-i18n="brand">Weather Afghanistan</strong><small
+          data-i18n="tagline">Weather across every province</small></span></a>
+    <div class="header-searches">
+      <label class="search-box province-search"><span class="search-glyph" aria-hidden="true">⌕</span><span
+          class="sr-only" data-i18n="provinces">Afghanistan provinces</span><input id="province-search" type="search"
+          autocomplete="off" data-placeholder="provinceSearch" placeholder="Find an Afghan province…"><button
+          class="clear-search" type="button" aria-label="Clear province search" hidden>×</button></label>
+      <div class="search-box global-search"><span class="search-glyph" aria-hidden="true">⌕</span><label class="sr-only"
+          for="global-search" data-i18n="world">World search</label><input id="global-search" type="search"
+          role="combobox" aria-autocomplete="list" aria-controls="global-results" aria-expanded="false"
+          autocomplete="off" data-placeholder="globalSearch" placeholder="Search cities worldwide…"><button
+          class="clear-search" type="button" aria-label="Clear search" hidden>×</button><span class="search-spinner"
+          aria-hidden="true"></span>
+        <div id="global-results" class="search-results" role="listbox" hidden></div>
+        <span id="search-status" class="sr-only" role="status" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="language-switch" aria-label="Language"><button type="button" data-lang="fa"
+          aria-pressed="false">دری</button><span>/</span><button type="button" data-lang="en"
+          aria-pressed="true">EN</button></div><label class="theme-select"><span class="sr-only"
+          data-i18n="theme">Appearance</span><select id="theme-select" aria-label="Appearance">
+          <option value="system" data-i18n="themeSystem">System</option>
+          <option value="light" data-i18n="themeLight">Light</option>
+          <option value="dark" data-i18n="themeDark">Dark</option>
+        </select></label>
+    </div>
+  </header>
+  <main id="top" class="page-shell">
+    <div id="status" class="status-banner" role="status" aria-live="polite" hidden></div>
+    <section class="weather-hero" aria-labelledby="place-name">
+      <div class="hero-head">
+        <div>
+          <p class="eyebrow" id="place-subtitle">Afghanistan</p>
+          <h1 id="place-name">Kabul</h1>
+          <p id="condition" class="condition-text">—</p>
+        </div><button class="location-button" id="locate-button" type="button"><span aria-hidden="true">◎</span><span
+            data-i18n="locate">Use my location</span></button>
+      </div>
+      <div class="hero-center">
+        <div class="temperature-block"><span id="temperature" class="temperature">—</span><span
+            class="temperature-unit">°C</span></div>
+        <div id="hero-icon" class="hero-icon" role="img" aria-label="Current weather condition"></div>
+        <div class="hero-summary"><span id="feels">Feels like —</span><span id="range">H — · L —</span></div>
+      </div>
+      <div class="hero-bottom"><span class="live-indicator"><i></i><span id="updated">—</span></span><span
+          id="local-clock" class="local-clock"></span></div>
+    </section>
+    <section class="forecast-section" aria-labelledby="hourly-heading">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow" data-i18n="forecastLabel">FORECAST</p>
+          <h2 id="hourly-heading" data-i18n="hourly">Next 24 hours</h2>
+        </div><span class="section-note">24 h</span>
+      </div>
+      <ol id="hourly-list" class="hourly-list">
+        <li class="empty-row">—</li>
+      </ol>
+    </section>
+    <section class="forecast-section daily-section" aria-labelledby="daily-heading">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow" data-i18n="outlookLabel">OUTLOOK</p>
+          <h2 id="daily-heading" data-i18n="daily">7-day forecast</h2>
+        </div>
+      </div>
+      <ol id="daily-list" class="daily-list">
+        <li class="empty-row" data-i18n="forecastEmpty">Forecast unavailable</li>
+      </ol>
+    </section>
+    <section class="details-section" aria-labelledby="details-heading">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow" data-i18n="glanceLabel">AT A GLANCE</p>
+          <h2 id="details-heading" data-i18n="details">Weather details</h2>
+        </div>
+      </div>
+      <div class="metrics-grid">
+        <article class="metric"><span class="metric-mark" aria-hidden="true">◌</span><span
+            data-i18n="humidity">Humidity</span><strong data-metric="humidity">—</strong></article>
+        <article class="metric"><span class="metric-mark" aria-hidden="true">↗</span><span
+            data-i18n="wind">Wind</span><strong data-metric="wind">—</strong></article>
+        <article class="metric"><span class="metric-mark" aria-hidden="true">◉</span><span
+            data-i18n="pressure">Pressure</span><strong data-metric="pressure">—</strong></article>
+        <article class="metric"><span class="metric-mark" aria-hidden="true">⌖</span><span
+            data-i18n="visibility">Visibility</span><strong data-metric="visibility">—</strong></article>
+        <article class="metric"><span class="metric-mark" aria-hidden="true">☁</span><span data-i18n="cloud">Cloud
+            cover</span><strong data-metric="cloud">—</strong></article>
+        <article class="metric"><span class="metric-mark" aria-hidden="true">⌁</span><span data-i18n="uv">UV
+            index</span><strong data-metric="uv">—</strong></article>
+        <article class="metric"><span class="metric-mark" aria-hidden="true">↑</span><span
+            data-i18n="sunrise">Sunrise</span><strong data-metric="sunrise">—</strong></article>
+        <article class="metric"><span class="metric-mark" aria-hidden="true">↓</span><span
+            data-i18n="sunset">Sunset</span><strong data-metric="sunset">—</strong></article>
+      </div>
+    </section>
+    <section class="provinces-section" id="provinces" aria-labelledby="provinces-heading">
+      <div class="section-header provinces-heading">
+        <div>
+          <p class="eyebrow" data-i18n="countryLabel">AFGHANISTAN</p>
+          <h2 id="provinces-heading" data-i18n="across">Weather across Afghanistan</h2>
+        </div><span class="province-total">34</span>
+      </div>
+      <p class="section-description" data-i18n="loadingProvinces">Province weather loads gradually as you browse.</p>
+      <div id="province-grid" class="province-grid"></div>
+    </section>
+    <section class="map-section" aria-labelledby="map-heading">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow" data-i18n="geography">GEOGRAPHY</p>
+          <h2 id="map-heading" data-i18n="mapTitle">Afghanistan map</h2>
+        </div>
+      </div>
+      <div class="map-ready"><span class="map-marker" aria-hidden="true">⌖</span>
+        <p data-i18n="mapNote">Province-boundary map data is not available in this lightweight edition.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <a href="#top" data-i18n="brand">Weather Afghanistan</a>
+    <a href="https://open-meteo.com/" rel="noreferrer" data-i18n="dataSource">Weather data by Open-Meteo</a>
+    <a href="privacy-policy.html" data-i18n="privacyPolicy">Privacy</a>
+    <a href="terms.html" data-i18n="termsLink">Terms</a>
+    <a href="cookie-policy.html" data-i18n="cookiePolicy">Cookies</a>
+    <span data-i18n="footer">Built for weather across Afghanistan</span>
+    <section class="creator-credit" aria-labelledby="about-developer-heading">
+      <h2 id="about-developer-heading" data-i18n="aboutDeveloper">About the Developer</h2>
+      <h3 id="creator-name" data-i18n="creatorName">Erfanullah Esmati</h3>
+      <p class="creator-role" data-i18n="creatorRole">Web Developer &amp; Future Cybersecurity Specialist</p>
+      <p class="creator-bio" data-i18n="creatorBio">I’m a software developer from Afghanistan focused on building
+        practical, modern, and secure digital solutions. My interests include web development, networking, Linux, and
+        cybersecurity, with a long-term focus on becoming a cybersecurity specialist.</p>
+      <nav class="creator-links" aria-label="Creator profiles">
+        <a href="https://github.com/erfanesmati1" target="_blank" rel="noopener noreferrer"
+          aria-label="Erfanullah Esmati on GitHub">GitHub</a>
+        <a href="https://www.linkedin.com/in/erfanullah-esmati/" target="_blank" rel="noopener noreferrer"
+          aria-label="Erfanullah Esmati on LinkedIn">LinkedIn</a>
+        <a href="mailto:erfanesmati1@gmail.com">erfanesmati1@gmail.com</a>
+        <a href="https://wa.me/93706424562" target="_blank" rel="noopener noreferrer"
+          aria-label="Contact Erfanullah Esmati on WhatsApp">WhatsApp: +93 706 424 562</a>
+      </nav>
+    </section>
+  </footer>
+  <script src="js/config.js" defer></script>
+  <script src="js/provinces.js" defer></script>
+  <script src="js/weather.js" defer></script>
+  <script src="js/search.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+
+</html>

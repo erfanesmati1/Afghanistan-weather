@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /*.xml$
+Allow: /sitemap.xml

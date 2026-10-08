@@ -1,0 +1,32 @@
+# Apache 2.4 static-site hardening. Configure HTTPS at the edge for non-Apache hosts.
+Options -Indexes
+RewriteEngine On
+
+# Set the real ServerName and UseCanonicalName On in Apache's virtual-host configuration.
+# This avoids reflecting an untrusted Host header into the HTTPS redirect.
+# This static application has no write endpoints or upload handling.
+RewriteCond %{REQUEST_METHOD} !^(GET|HEAD)$ [NC]
+RewriteRule ^ - [F,END]
+
+# Do not expose repository or environment files if the repository root is deployed.
+RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,END,NC]
+
+# HTTPS must be enabled with a valid certificate before deploying this rule.
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L,NE]
+
+# Do not serve standalone XML documents. SVG image assets remain available.
+RewriteCond %{REQUEST_URI} !^/sitemap\.xml$ [NC]
+RewriteRule (?i)\.xml$ - [F,END]
+
+# The static not-found page is served for missing paths on Apache.
+ErrorDocument 404 /404.html
+
+<IfModule mod_headers.c>
+    Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on'"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(self), camera=(), microphone=()"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+</IfModule>
